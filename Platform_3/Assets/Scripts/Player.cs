@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     [Header ("Movimentação")]
     #region Movimentação
     public float horizontalSpeed = 3.0f;
+    public int direction = 1;
     #endregion
     [Header ("Pulo")]
     #region Pulo
@@ -34,6 +35,7 @@ public class Player : MonoBehaviour
         rig = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spr = GetComponent<SpriteRenderer>();
+        attackArea = GetComponent<BoxCollider2D>();
     }
 
     // Update is called once per frame
@@ -62,6 +64,9 @@ public class Player : MonoBehaviour
 
     void Flip(bool faceRight){
         spr.flipX = !faceRight;
+        if(faceRight) direction = 1;
+        else direction = -1;
+        attackArea.offset = new Vector2(direction, attackArea.offset.y);
     }
 
     public void DamageEnemy(){
