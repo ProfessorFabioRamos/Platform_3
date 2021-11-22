@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5427217111295013379}
   - component: {fileID: 5427217111295013378}
   - component: {fileID: 5427217111295013383}
-  m_Layer: 12
+  m_Layer: 9
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,6 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   direction: -1
   speed: 2
+  enemyHP: 2
 --- !u!95 &5427217111295013383
 Animator:
   serializedVersion: 3

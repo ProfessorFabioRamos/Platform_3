@@ -9,12 +9,13 @@ public class EnemyBase : MonoBehaviour
     public int enemyHP = 2;
     private Rigidbody2D rig;
     private SpriteRenderer spr;
-
+    private Animator anim;
     // Start is called before the first frame update
     void Start()
     {
         rig = GetComponent<Rigidbody2D>();
         spr = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -24,9 +25,16 @@ public class EnemyBase : MonoBehaviour
     }
 
     void OnCollisionEnter2D(Collision2D other){
-        if(other.gameObject.layer == 9){
+        if(other.gameObject.layer == 8){
             direction *= -1;
             Flip();
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other){
+        if(other.gameObject.tag == "Projectile"){
+            TakeDamage(1);
+            Destroy(other.gameObject);
         }
     }
 
@@ -37,7 +45,8 @@ public class EnemyBase : MonoBehaviour
     public void TakeDamage(int damage){
         enemyHP -= damage;
         if(enemyHP <= 0){
-            Destroy(this.gameObject);
+            anim.SetTrigger("dead");
+            Destroy(gameObject, 2);
         }
     }
 }

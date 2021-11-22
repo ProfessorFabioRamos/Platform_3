@@ -8,17 +8,28 @@ public class Player : MonoBehaviour
     #region Movimentação
     public float horizontalSpeed = 3.0f;
     public int direction = 1;
+
     #endregion
     [Header ("Pulo")]
     #region Pulo
     public float jumpForce = 500;
     public LayerMask whatIsFloor;
+
     #endregion
     [Header ("Ataques")]
+
     #region Ataques
     public BoxCollider2D attackArea;
     public int melleDamage = 1;
     private EnemyBase enemyInArea = null;
+    public GameObject projectilePrefab;
+    public float projectileSpeed = 10.0f;
+    public Transform shootingPosition;
+    #endregion
+    
+    [Header ("Hp e Vida")]
+    #region HP e Vida
+    public Transform respawnPoint;
 
     #endregion
     [Header ("Referencias")]
@@ -60,6 +71,10 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.X)){
             anim.SetTrigger("attack");
         }
+
+        if(Input.GetKeyDown(KeyCode.Z)){
+            anim.SetTrigger("shoot");
+        }
     }
 
     void Flip(bool faceRight){
@@ -75,9 +90,20 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void Shoot(){
+        GameObject proj = Instantiate(projectilePrefab, shootingPosition.position, 
+        Quaternion.identity);
+        Rigidbody2D projrig = proj.GetComponent<Rigidbody2D>();
+        projrig.velocity = new Vector2(projectileSpeed*direction,projrig.velocity.y);
+    }
+
     void OnTriggerStay2D(Collider2D other){
         if(other.gameObject.layer == 12){
             enemyInArea = other.GetComponent<EnemyBase>();
+        }
+
+        if(other.gameObject.tag == "DeathZone"){
+            transform.position = respawnPoint.position;
         }
     }
 
