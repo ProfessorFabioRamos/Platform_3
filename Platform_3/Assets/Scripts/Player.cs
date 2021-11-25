@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -30,7 +31,10 @@ public class Player : MonoBehaviour
     [Header ("Hp e Vida")]
     #region HP e Vida
     public Transform respawnPoint;
-
+    public int maxHP = 10;
+    public int HP;
+    public Slider hpBar;
+    private bool isAlive = true;
     #endregion
     [Header ("Referencias")]
     #region Referencias de Componentes
@@ -47,33 +51,48 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         spr = GetComponent<SpriteRenderer>();
         attackArea = GetComponent<BoxCollider2D>();
+        HP = maxHP;
+        hpBar.maxValue = maxHP;
+        hpBar.value = maxHP;
     }
 
     // Update is called once per frame
     void Update()
     {
-        float h = Input.GetAxis("Horizontal");
+        if(isAlive){
+            float h = Input.GetAxis("Horizontal");
 
-        if(h>0) Flip(true);
-        else if(h<0)Flip(false);
+            if(h>0) Flip(true);
+            else if(h<0)Flip(false);
 
-        anim.SetFloat("speed", Mathf.Abs(h));
+            anim.SetFloat("speed", Mathf.Abs(h));
 
-        rig.velocity = new Vector2(h*horizontalSpeed, rig.velocity.y);
+            rig.velocity = new Vector2(h*horizontalSpeed, rig.velocity.y);
 
-        bool grounded = Physics2D.OverlapCircle(transform.position, 0.2f, whatIsFloor);
+            bool grounded = Physics2D.OverlapCircle(transform.position, 0.2f, whatIsFloor);
 
-        if(grounded && Input.GetButtonDown("Jump")){
-            rig.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            if(grounded && Input.GetButtonDown("Jump")){
+                rig.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            }
+            anim.SetBool("grounded", grounded);
+
+            if(Input.GetKeyDown(KeyCode.X)){
+                anim.SetTrigger("attack");
+            }
+
+            if(Input.GetKeyDown(KeyCode.Z)){
+                anim.SetTrigger("shoot");
+            }
+
+            hpBar.value = HP;
         }
-        anim.SetBool("grounded", grounded);
+    }
 
-        if(Input.GetKeyDown(KeyCode.X)){
-            anim.SetTrigger("attack");
-        }
-
-        if(Input.GetKeyDown(KeyCode.Z)){
-            anim.SetTrigger("shoot");
+    public void TakeDamage(int damage){
+        HP -= damage;
+        if(HP <=0 && isAlive){
+            anim.SetTrigger("dead");
+            isAlive = false;
         }
     }
 
