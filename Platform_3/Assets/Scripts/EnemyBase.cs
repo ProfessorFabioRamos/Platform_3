@@ -8,6 +8,8 @@ public class EnemyBase : MonoBehaviour
     public float speed = 2.0f;
     public int enemyHP = 2;
     public int damage = 1;
+    public float coolDownAttack = 2;
+    public bool canAttack = true;
     private Rigidbody2D rig;
     private SpriteRenderer spr;
     private Animator anim;
@@ -27,12 +29,20 @@ public class EnemyBase : MonoBehaviour
         rig.velocity = new Vector2(speed*direction, rig.velocity.y);
         float distance = Vector2.Distance(transform.position, playerTransform.position);
         if(distance <= 2){
-            anim.SetTrigger("attack");
+            if(canAttack){
+                anim.SetTrigger("attack");
+                canAttack = false;
+            }
         }
     }
 
     public void DamagePlayer(){
         playerTransform.GetComponent<Player>().TakeDamage(damage);
+        Invoke("ResetAttack", coolDownAttack);
+    }
+
+    void ResetAttack(){
+        canAttack = true;
     }
 
     void OnCollisionEnter2D(Collision2D other){

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -15,7 +16,9 @@ public class Player : MonoBehaviour
     #region Pulo
     public float jumpForce = 500;
     public LayerMask whatIsFloor;
-
+    public bool isJumping;
+    public float jumpTimeCounter;
+    public float jumpTime = 1.5f;
     #endregion
     [Header ("Ataques")]
 
@@ -70,10 +73,30 @@ public class Player : MonoBehaviour
             rig.velocity = new Vector2(h*horizontalSpeed, rig.velocity.y);
 
             bool grounded = Physics2D.OverlapCircle(transform.position, 0.2f, whatIsFloor);
-
+            /*
             if(grounded && Input.GetButtonDown("Jump")){
                 rig.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            }*/
+
+            if(grounded && Input.GetButtonDown("Jump")){
+                isJumping = true;
+                jumpTimeCounter = jumpTime;
+                rig.velocity = new Vector2(rig.velocity.x, jumpForce);
             }
+
+            if(Input.GetButton("Jump") && isJumping){
+                if(jumpTimeCounter > 0){
+                    jumpTimeCounter -= Time.deltaTime;
+                    rig.velocity = new Vector2(rig.velocity.x, jumpForce);
+                }else{
+                    isJumping = false;
+                }
+            }
+
+            if(Input.GetButtonUp("Jump")){
+                isJumping = false;
+            }
+
             anim.SetBool("grounded", grounded);
 
             if(Input.GetKeyDown(KeyCode.X)){
@@ -114,6 +137,18 @@ public class Player : MonoBehaviour
         Quaternion.identity);
         Rigidbody2D projrig = proj.GetComponent<Rigidbody2D>();
         projrig.velocity = new Vector2(projectileSpeed*direction,projrig.velocity.y);
+    }
+
+    void OnTriggerEnter2D(Collider2D other){
+        if(other.gameObject.tag == "Endlevel"){
+            other.GetComponent<Animator>().SetTrigger("open");
+            StartCoroutine("LoadLevelTime");
+        }
+    }
+
+    IEnumerator LoadLevelTime(){
+        yield return new WaitForSeconds(3);
+        SceneManager.LoadScene("Level_2");
     }
 
     void OnTriggerStay2D(Collider2D other){
